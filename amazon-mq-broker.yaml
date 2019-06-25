@@ -1,0 +1,183 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploys an Amazon MQ broker.
+
+Parameters:
+  Stage:
+    Type: String
+    Default: DEV
+    Description: The stage into we deploy this template.
+
+  AmazonMQBrokerUserName:
+    Type: String
+    Default: AmazonMQBrokerUserName
+    Description: The name of the Amazon MQ broker user.
+
+  AmazonMQBrokerPassword:
+    NoEcho: true
+    Type: String
+    Default: AmazonMQBrokerPassword
+    Description: The password of the Amazon MQ broker user.
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.111.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'VPC' ] ]
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'InternetGateway' ] ]
+
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'RouteTable' ] ]
+
+  Route:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.111.0.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnet1' ] ]
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.111.1.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnet2' ] ]
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref RouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref RouteTable
+
+  AmazonMQSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Limits security group ingress and egress traffic for the Amazon MQ instance
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8162
+        ToPort: 8162
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 61617
+        ToPort: 61617
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 5671
+        ToPort: 5671
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 61614
+        ToPort: 61614
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 8883
+        ToPort: 8883
+        CidrIp: 0.0.0.0/0
+
+  AmazonMQBroker:
+    Type: AWS::AmazonMQ::Broker
+    Properties: 
+      AutoMinorVersionUpgrade: false
+      BrokerName: AmazonMQBroker
+      DeploymentMode: SINGLE_INSTANCE  # use ACTIVE_STANDBY_MULTI_AZ for high availability and resiliency
+      EngineType: ActiveMQ
+      EngineVersion: 5.15.6
+      HostInstanceType: mq.m5.large
+      Logs:
+        General: true
+        Audit: true
+      PubliclyAccessible: true
+      SecurityGroups:
+        - !Ref AmazonMQSecurityGroup
+      SubnetIds:
+        - !Ref PublicSubnet1
+# for single instance, we only need one subnet
+#        - !Ref PublicSubnet2
+      Users: 
+        - 
+          ConsoleAccess: true
+          Groups: 
+            - Admin
+          Password: 
+            Ref: AmazonMQBrokerPassword
+          Username: 
+            Ref: AmazonMQBrokerUserName
+
+Outputs:
+  VPCRef:
+    Description: The reference to the created VPC.
+    Value: !Ref VPC
+    Export:
+      Name: !Sub '${Stage}:JMS-BRIDGE:VPC'
+
+  PublicSubnet1Ref:
+    Description: The reference to the created public subnet 1.
+    Value: !Ref PublicSubnet1
+    Export:
+      Name: !Sub '${Stage}:JMS-BRIDGE:PublicSubnet1'
+
+  PublicSubnet2Ref:
+    Description: The reference to the created public subnet 2.
+    Value: !Ref PublicSubnet2
+    Export:
+      Name: !Sub '${Stage}:JMS-BRIDGE:PublicSubnet2'
+
+  AmazonMQBrokerUserNameRef:
+    Description: The reference to the Amazon MQ broker user name.
+    Value: !Ref AmazonMQBrokerUserName
+    Export:
+      Name: !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerUserName'
+
+  AmazonMQBrokerPasswordRef:
+    Description: The reference to the Amazon MQ broker user password.
+    Value: !Ref AmazonMQBrokerPassword
+    Export:
+      Name: !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerPassword'
+
+  AmazonMQBrokerURLRef:
+    Description: The reference to the Amazon MQ broker OpenWire URL.
+    Value: !Sub 'failover:(ssl://${AmazonMQBroker}-1.mq.${AWS::Region}.amazonaws.com:61617)'
+    Export:
+      Name: !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerURL'

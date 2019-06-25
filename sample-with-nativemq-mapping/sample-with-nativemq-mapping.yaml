@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a service on AWS Fargate, hosted in a public subnet, and accessible via a public load balancer.
+
+Parameters:
+  Stage:
+    Type: String
+    Default: DEV
+    Description: The stage into we deploy this template.
+
+  IBMMQBrokerHost:
+    Type: String
+    Description: The host name or public IP address of the IBM MQ broker.
+
+Resources:
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  JMSBridgeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Limits security group ingress and egress traffic for the JMS bridge instance
+      VpcId: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:VPC'}
+      Tags:
+      - Key: Name
+        Value: !Sub '${AWS::StackName}:JMSBridgeSecurityGroup'
+
+  JMSBridgeECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: sample-with-nativemq-mapping
+
+  JMSBridgeECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: sample-with-nativemq-mapping
+      Cpu: 1024
+      Memory: 2048
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      ContainerDefinitions:
+        - Name: sample-with-nativemq-mapping
+          Cpu: 1024
+          Memory: 2048
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-to-websphere-mq-bridge/sample-with-nativemq-mapping:latest'
+          Environment:
+            - Name: amazonMQ.brokerURL
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerURL'}
+            - Name: amazonMQ.userName
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerUserName'}
+            - Name: amazonMQ.password
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerPassword'}
+            - Name: websphereMQ.hostName
+              Value: !Ref IBMMQBrokerHost
+            - Name: websphereMQ.queueManager
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:IBMMQBrokerQueueManager'}
+            - Name: websphereMQ.channel
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:IBMMQBrokerChannel'}
+            - Name: websphereMQ.userName
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:IBMMQBrokerUserName'}
+            - Name: websphereMQ.password
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:IBMMQBrokerPassword'}
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref CloudWatchLogsGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: sample-with-nativemq-mapping
+
+  CloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: mithunm/ecs/sample-with-nativemq-mapping-cluster
+      RetentionInDays: 30
+
+  JMSBridgeECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: sample-with-nativemq-mapping-service
+      Cluster: !Ref JMSBridgeECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED # to be able to download images from ECR
+          SecurityGroups:
+            - !Ref JMSBridgeSecurityGroup
+          Subnets:
+            - {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:PublicSubnet1'}
+            - {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:PublicSubnet2'}
+      TaskDefinition: !Ref JMSBridgeECSTaskDefinition
+
+Outputs:
+  JMSBridgeECSClusterRef:
+    Description: The name of the JMS bridge ECS cluster
+    Value: !Ref JMSBridgeECSCluster

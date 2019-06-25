@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
+
+    <bean id="amazonMQ" class="org.apache.activemq.camel.component.ActiveMQComponent">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="${amazonMQ.brokerURL}" />
+                <property name="userName" value="${amazonMQ.userName}" />
+                <property name="password" value="${amazonMQ.password}" />
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="websphereMQ" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="connectionFactory">
+            <bean class="org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter">
+                <property name="targetConnectionFactory">
+                    <bean class="com.ibm.mq.jms.MQQueueConnectionFactory">
+                        <property name="hostName" value="${websphereMQ.hostName}" />
+                        <property name="port" value="1414" />
+                        <property name="queueManager" value="${websphereMQ.queueManager}" />
+                        <property name="channel" value="${websphereMQ.channel}" />
+                        <property name="transportType" value="1" />
+                    </bean>
+                </property>
+                <property name="username" value="${websphereMQ.userName}" />
+                <property name="password" value="${websphereMQ.password}" />
+            </bean>
+        </property>
+    </bean>
+
+	
+    <camelContext id="wmq-to-amq-bridge" xmlns="http://camel.apache.org/schema/spring">
+    
+        <route id="amazonMQ-to-websphereMQ">
+            <description>Camel Route from amazonMQ to websphereMQ</description>
+            <from uri="amazonMQ:NativeSourceQ"/>
+			<setExchangePattern pattern="InOnly"/>
+		    <!-- remove inner message headers and properties to test without inbound side effects! -->
+		    <removeHeaders pattern="*"/> 
+		    <removeProperties pattern="*" />
+   			<!-- camel:process ref="reference to your MQ message preparation bean fits here" / -->
+
+		    <setHeader headerName="JMS_IBM_Report_COD"><simple resultType="java.lang.Integer">2048</simple></setHeader>
+		    <setHeader headerName="JMS_IBM_Report_Pass_Correl_ID"><simple resultType="java.lang.Integer">64</simple></setHeader>
+		    <setHeader headerName="JMS_IBM_MsgType"><simple resultType="java.lang.Integer">8</simple></setHeader>
+ 			<!-- <setHeader headerName="JMSReplyTo"><constant>websphereMQ:queue:QUEUE.C</constant></setHeader>-->
+    		<setHeader headerName="CamelJmsDestinationName"><constant>queue://{{env:websphereMQ.queueManager}}/DEV.QUEUE.3?targetClient=1</constant></setHeader>   			        
+            <log message="Got from header $simple{in.header.CamelJmsDestinationName}" />
+            <to uri="websphereMQ:queue:PLACEHOLDER.Q.NAME?concurrentConsumers=1&amp;exchangePattern=InOnly&amp;preserveMessageQos=true&amp;includeSentJMSMessageID=true&amp;ReplyTo=DEV.QUEUE.1"/>
+            
+        </route>
+    </camelContext>
+</beans>

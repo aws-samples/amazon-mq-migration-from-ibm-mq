@@ -1,0 +1,228 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a service on AWS Fargate, hosted in a public subnet, and accessible via a public load balancer.
+Parameters:
+  StackName:
+    Type: String
+    Default: production
+    Description: The name of the parent Fargate networking stack that you created. Necessary
+                 to locate and reference resources created by that stack.
+  ServiceName:
+    Type: String
+    Default: camel-native-mq-mapping
+    Description: A name for the service
+  ImageUrl:
+    Type: String
+    Default: 681921237057.dkr.ecr.us-west-2.amazonaws.com/sample-with-native-mq-mapping
+    Description: The url of a docker image that contains the application process that
+                 will handle the traffic for this service
+  ContainerPort:
+    Type: Number
+    Default: 80
+    Description: What port number the application inside the docker container is binding to
+  ContainerCpu:
+    Type: Number
+    Default: 256
+    Description: How much CPU to give the container. 1024 is 1 CPU
+  ContainerMemory:
+    Type: Number
+    Default: 512
+    Description: How much memory in megabytes to give the container
+  Path:
+    Type: String
+    Default: "*"
+    Description: A path on the public load balancer that this service
+                 should be connected to. Use * to send all load balancer
+                 traffic to this service.
+  AmazonMQPassword:
+    Type: String
+    NoEcho: true
+    Description: Amazon MQ account password
+    Type: String
+
+  AmazonMQBrokerURL:
+    Type: String
+    Default: ssl://b-8a62931e-e088-4820-b42b-08187974e01f-1.mq.us-west-2.amazonaws.com:61617
+    Description: Amazon MQ broker URL
+    Type: String
+
+  AmazonMQUser:
+    Type: String
+    Default: admin
+    Description: Amazon MQ user
+    Type: String
+
+  IBMMQPassword:
+    Type: String
+    NoEcho: true
+    Default: ''
+    Description: IBM MQ account password
+    Type: String
+
+  IBMMQHost:
+    Type: String
+    Default: 34.213.64.86
+    Description: IBM MQ Host
+    Type: String
+
+  IBMMQPort:
+    Type: String
+    Default: 1414
+    Description: IBM MQ port
+    Type: String
+
+  IBMMQUser:
+    Type: String
+    Default: mithumal
+    Description: The IBM MQ user
+    Type: String
+
+  IBMMQQueueManager:
+    Type: String
+    Default: QM.TEST
+    Description: The IBM MQ queue manager
+    Type: String
+
+  IBMMQChannel:
+    Type: String
+    Default: SYSTEM.DEF.SVRCONN
+    Description: The IBM MQ server channel
+    Type: String
+
+  Priority:
+    Type: Number
+    Default: 1
+    Description: The priority for the routing rule added to the load balancer.
+                 This only applies if your have multiple services which have been
+                 assigned to different paths on the load balancer.
+  DesiredCount:
+    Type: Number
+    Default: 2
+    Description: How many copies of the service task to run
+  Role:
+    Type: String
+    Default: ""
+    Description: (Optional) An IAM role to give the service's containers if the code within needs to
+                 access other AWS resources like S3 buckets, DynamoDB tables, etc
+
+Conditions:
+  HasCustomRole: !Not [ !Equals [!Ref 'Role', ''] ]
+
+Resources:
+  ECSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2008-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: ecs.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole'
+
+  # This is a role which is used by the ECS tasks themselves.
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: AmazonECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+                - 'mq:*'
+              Resource: '*'
+  # ECS Resources
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+
+  # The task definition. This is a simple metadata description of what
+  # container to run, and what resource requirements it has.
+  taskdefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Ref 'ServiceName'
+      Cpu: !Ref 'ContainerCpu'
+      Memory: !Ref 'ContainerMemory'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn:
+          !Ref 'ECSTaskExecutionRole'
+
+      ContainerDefinitions:
+        - Name: !Ref 'ServiceName'
+          Cpu: !Ref 'ContainerCpu'
+          Memory: !Ref 'ContainerMemory'
+          Image: !Ref 'ImageUrl'
+          PortMappings:
+            - ContainerPort: !Ref 'ContainerPort'
+          Environment:
+          - Name: 'amazonMQ.userName'
+            Value: !Ref 'AmazonMQUser'
+          - Name: 'amazonMQ.password'
+            Value: !Ref 'AmazonMQPassword'
+          - Name: 'amazonMQ.brokerURL'
+            Value: !Ref 'AmazonMQBrokerURL'
+          - Name: 'websphereMQ.userName'
+            Value: !Ref 'IBMMQUser'
+          - Name: 'websphereMQ.password'
+            Value: !Ref 'IBMMQPassword'
+          - Name: 'websphereMQ.hostName'
+            Value: !Ref 'IBMMQHost'
+          - Name: 'websphereMQ.queueManager'
+            Value: !Ref IBMMQQueueManager
+          - Name: 'websphereMQ.channel'
+            Value: !Ref IBMMQChannel
+
+
+  # The service. The service is a resource which allows you to run multiple
+  # copies of a type of task, and gather up their logs and metrics, as well
+  # as monitor the number of running tasks and replace any that have crashed
+  Service:
+    Type: AWS::ECS::Service
+    # DependsOn: LoadBalancerRule
+    Properties:
+      ServiceName: !Ref 'ServiceName'
+      #Role: !Ref 'ECSRole'
+      Cluster:
+        !Ref 'ECSCluster'
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: !Ref 'DesiredCount'
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - 'sg-0e7a8de1887ed0284'
+          Subnets:
+            - 'subnet-04c00beb0e59378e3'
+            - 'subnet-07b619e7c5df937e3'
+      TaskDefinition: !Ref taskdefinition
+
+Outputs:
+  ClusterName:
+    Description: The name of the ECS cluster
+    Value: !Ref 'ECSCluster'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ClusterName' ] ]
