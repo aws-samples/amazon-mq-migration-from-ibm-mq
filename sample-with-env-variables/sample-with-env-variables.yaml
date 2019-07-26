@@ -53,7 +53,7 @@ Resources:
         - Name: sample-with-env-variables-task
           Cpu: 512
           Memory: 1024
-          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-to-websphere-mq-bridge/sample-with-env-variables:latest'
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/sample-with-env-variables:latest'
           Environment:
             - Name: amazonMQ.brokerURL
               Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerURL'}

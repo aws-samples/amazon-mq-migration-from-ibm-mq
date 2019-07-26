@@ -45,16 +45,16 @@ aws cloudformation wait stack-create-complete \
 * **3. sample-with-native-mapping** - This sample is demonstrating, how to map native IBM® MQ attributes. This is for example necessary, if your current solutions is using the native IBM protocoll to interact with IBM® MQ and not the JMS API. 
 
 ``` bash
-cd sample-with-native-mapping
+cd sample-with-nativemq-mapping
 
 aws cloudformation create-stack \
-    --stack-name sample-with-native-mapping \
-    --template-body file://sample-with-native-mapping.yaml \
+    --stack-name sample-with-nativemq-mapping \
+    --template-body file://sample-with-nativemq-mapping.yaml \
     --capabilities CAPABILITY_IAM \
     --parameters ParameterKey=IBMMQBrokerHost,ParameterValue=<IBMMQBrokerHost>
 
 aws cloudformation wait stack-create-complete \
-    --stack-name sample-with-native-mapping
+    --stack-name sample-with-nativemq-mapping
 ```
 
 ### 2. Ingest messages on the Amazon MQ site and listen on the IBM® MQ.

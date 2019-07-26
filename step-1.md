@@ -19,7 +19,7 @@ In this step, we are creating the Docker image, by running the following command
 ``` bash
 cd mq-container
 
-git checkout 9.0.5
+git checkout b751640b79a9a40031f23f9bb473aec68b691170
 
 make build-devserver
 ```
@@ -32,15 +32,15 @@ Now we are tagging the locally created Docker image with the tag '9.0.5' and 'la
 $(aws ecr get-login --no-include-email --region <region>)
 
 aws ecr create-repository \
-    --repository-name amazon-mq-to-websphere-mq-bridge/mqadvanced-server-dev
+    --repository-name amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev
 
-docker tag  mqadvanced-server-dev:9.0.5.0-x86_64-ubuntu-16.04 <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-to-websphere-mq-bridge/mqadvanced-server-dev:9.0.5
+docker tag  mqadvanced-server-dev:9.0.5.0-x86_64-ubuntu-16.04 <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:9.0.5
 
-docker push <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-to-websphere-mq-bridge/mqadvanced-server-dev:9.0.5
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:9.0.5
 
-docker tag  mqadvanced-server-dev:9.0.5.0-x86_64-ubuntu-16.04 <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-to-websphere-mq-bridge/mqadvanced-server-dev:latest
+docker tag  mqadvanced-server-dev:9.0.5.0-x86_64-ubuntu-16.04 <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:latest
 
-docker push <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-to-websphere-mq-bridge/mqadvanced-server-dev:latest
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:latest
 ```
 
 ### 4. Run und test it locally.

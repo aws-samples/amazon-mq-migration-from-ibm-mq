@@ -74,7 +74,7 @@ Resources:
         - Name: sample-with-aws-ssm-task
           Cpu: 512
           Memory: 1024
-          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-to-websphere-mq-bridge/sample-with-aws-ssm:latest'
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/sample-with-aws-ssm:latest'
           Environment:
             - Name: env
               Value: DEV

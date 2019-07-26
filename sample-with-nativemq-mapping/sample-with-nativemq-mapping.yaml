@@ -53,7 +53,7 @@ Resources:
         - Name: sample-with-nativemq-mapping
           Cpu: 1024
           Memory: 2048
-          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-to-websphere-mq-bridge/sample-with-nativemq-mapping:latest'
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/sample-with-nativemq-mapping:latest'
           Environment:
             - Name: amazonMQ.brokerURL
               Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerURL'}

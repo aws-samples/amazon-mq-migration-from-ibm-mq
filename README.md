@@ -14,7 +14,7 @@ In this sample, we are setting up an environment as below. To simulate the on-pr
 
 ## Go Build!
 
-To build and run this example, you have to follow 3 steps we will discuss in detail.
+To build and run this example, you have to follow 6 steps we will discuss in detail.
 
 * **[Step 1: Deploy the on-premises broker](/step-1.md)** - Here, we are creating a Docker image which contains the IBM® MQ broker to have an easy way to run this broker in AWS as [Amazon ECS](https://aws.amazon.com/ecs/) task, managed by AWS Fargate.
 
@@ -25,3 +25,5 @@ To build and run this example, you have to follow 3 steps we will discuss in det
 * **[Step 4: Deploy the sample service of your choice](/step-4.md)** - Here, we are deploying one of the three JMS bridge samples, we have prepared for you.
 
 * **[Step 5: Generate load to see auto-scaling in action](/step-5.md)** - Here, we are generating load to verify, how auto-scaling kicks in and scales our JMS bridge.
+
+* **[Step 6: Terminate and delete all resources](/step-6.md)** - Here, we are deleting the resources we created so that no additional cost occurs.

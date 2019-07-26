@@ -27,14 +27,14 @@ Resources:
       EnableDnsHostnames: true
       Tags:
       - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'VPC' ] ]
+        Value: !Sub '${AWS::StackName}:VPC'
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
       - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'InternetGateway' ] ]
+        Value: !Sub '${AWS::StackName}:InternetGateway'
 
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -48,7 +48,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'RouteTable' ] ]
+        Value: !Sub '${AWS::StackName}:RouteTable'
 
   Route:
     Type: AWS::EC2::Route
@@ -65,7 +65,7 @@ Resources:
       AvailabilityZone: !Select [0, !GetAZs '']
       Tags:
       - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnet1' ] ]
+        Value: !Sub '${AWS::StackName}:PublicSubnet1'
 
   PublicSubnet2:
     Type: AWS::EC2::Subnet
@@ -75,7 +75,7 @@ Resources:
       AvailabilityZone: !Select [1, !GetAZs '']
       Tags:
       - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnet2' ] ]
+        Value: !Sub '${AWS::StackName}:PublicSubnet2'
 
   PublicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -147,7 +147,7 @@ Resources:
         - Name: mqadvanced-server-dev
           Cpu: 2048
           Memory: 4096
-          Image: !Join [ '', [ !Ref 'AWS::AccountId', '.dkr.ecr.', !Ref 'AWS::Region', '.amazonaws.com/amazon-mq-to-websphere-mq-bridge/mqadvanced-server-dev:latest' ] ]
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:latest'
           PortMappings:
             - ContainerPort: 1414
             - ContainerPort: 9443

@@ -4,14 +4,14 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>com.amazonaws.samples</groupId>
-        <artifactId>amazon-mq-to-websphere-mq-bridge</artifactId>
+        <artifactId>amazon-mq-migration-from-ibm-mq</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.amazonaws.samples.amazon-mq-to-websphere-mq-bridge</groupId>
+    <groupId>com.amazonaws.samples.amazon-mq-migration-from-ibm-mq</groupId>
     <artifactId>sample-with-nativemq-mapping</artifactId>
     <packaging>jar</packaging>
 
@@ -23,6 +23,12 @@
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-camel</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jms_2.0_spec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -33,12 +39,12 @@
             <artifactId>camel-spring</artifactId>
         </dependency>
 
-		<dependency>
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <scope>runtime</scope>
         </dependency>
-		      
+
     </dependencies>
 
     <build>
@@ -48,7 +54,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -58,7 +64,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${org.apache.maven.plugins.maven-shade-plugin.version}</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
@@ -70,29 +76,26 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.amazonaws.samples.Bootstrap</mainClass>
                                 </transformer>
-                                <transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource>META-INF/spring.handlers</resource>
-								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource>META-INF/spring.schemas</resource>
-								</transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
                             </transformers>
-							<filters>
-								<filter>
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-									</excludes>
-								</filter>
-							</filters>                          
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -101,7 +104,7 @@
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.8</version>
+                <version>${com.spotify.dockerfile-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -112,7 +115,7 @@
                 </executions>
                 <configuration>
                     <!-- configure your Amazon ECR repository URI: https://console.aws.amazon.com/ecs/home?#/repositories -->
-                    <repository>${aws-account-id}.dkr.ecr.us-west-2.amazonaws.com/amazon-mq-to-websphere-mq-bridge/${project.artifactId}</repository>
+                    <repository>${aws-account-id}.dkr.ecr.${aws.region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/${project.artifactId}</repository>
                     <tag>latest</tag>
                     <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
                 </configuration>

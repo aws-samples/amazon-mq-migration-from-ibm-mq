@@ -12,17 +12,17 @@ First, we will create the Amazon ECR repositories which will host our Docker ima
 $(aws ecr get-login --no-include-email --region <region>)
 
 aws ecr create-repository \
-    --repository-name amazon-mq-to-websphere-mq-bridge/sample-with-env-variables
+    --repository-name amazon-mq-migration-from-ibm-mq/sample-with-env-variables
 
 aws ecr create-repository \
-    --repository-name amazon-mq-to-websphere-mq-bridge/sample-with-aws-ssm
+    --repository-name amazon-mq-migration-from-ibm-mq/sample-with-aws-ssm
 
 aws ecr create-repository \
-    --repository-name amazon-mq-to-websphere-mq-bridge/sample-with-nativemq-mapping
+    --repository-name amazon-mq-migration-from-ibm-mq/sample-with-nativemq-mapping
 
 # and our load generator services
 aws ecr create-repository \
-    --repository-name amazon-mq-to-websphere-mq-bridge/load-generator
+    --repository-name amazon-mq-migration-from-ibm-mq/load-generator
 ```
 
 ### 2. Compile, package, docerize and upload the samples
@@ -87,14 +87,14 @@ mvn clean deploy
 After a successful run, you should see a console output like this:
 
 ``` bash
-[INFO] amazon-mq-to-websphere-mq-bridge 1.0.0-SNAPSHOT .... SUCCESS [  0.752 s]
-[INFO] sample-with-env-variables .......................... SUCCESS [02:20 min]
-[INFO] sample-with-aws-ssm ................................ SUCCESS [02:11 min]
-[INFO] sample-with-nativemq-mapping ....................... SUCCESS [04:24 min]
-[INFO] load-generator 1.0.0-SNAPSHOT ...................... SUCCESS [03:30 min]
-[INFO] ------------------------------------------------------------------------
+[INFO] amazon-mq-migration-from-ibm-mq 1.0.0-SNAPSHOT .... SUCCESS [  0.752 s]
+[INFO] sample-with-env-variables ......................... SUCCESS [02:20 min]
+[INFO] sample-with-aws-ssm ............................... SUCCESS [02:11 min]
+[INFO] sample-with-nativemq-mapping ...................... SUCCESS [04:24 min]
+[INFO] load-generator 1.0.0-SNAPSHOT ..................... SUCCESS [03:30 min]
+[INFO] -----------------------------------------------------------------------
 [INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
+[INFO] -----------------------------------------------------------------------
 ```
 
 # Completion

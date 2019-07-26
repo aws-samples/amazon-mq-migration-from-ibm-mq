@@ -7,11 +7,11 @@
 
     <parent>
         <groupId>com.amazonaws.samples</groupId>
-        <artifactId>amazon-mq-to-websphere-mq-bridge</artifactId>
+        <artifactId>amazon-mq-migration-from-ibm-mq</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.amazonaws.samples.amazon-mq-to-websphere-mq-bridge</groupId>
+    <groupId>com.amazonaws.samples.amazon-mq-migration-from-ibm-mq</groupId>
     <artifactId>sample-with-env-variables</artifactId>
     <packaging>jar</packaging>
 
@@ -19,7 +19,6 @@
         <dependency>
             <groupId>javax.jms</groupId>
             <artifactId>javax.jms-api</artifactId>
-            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.mq</groupId>
@@ -53,7 +52,6 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <scope>runtime</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -63,7 +61,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -73,7 +71,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${org.apache.maven.plugins.maven-shade-plugin.version}</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
@@ -113,7 +111,7 @@
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.8</version>
+                <version>${com.spotify.dockerfile-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -124,7 +122,7 @@
                 </executions>
                 <configuration>
                     <!-- configure your Amazon ECR repository URI: https://console.aws.amazon.com/ecs/home?#/repositories -->
-                    <repository>${aws-account-id}.dkr.ecr.eu-central-1.amazonaws.com/amazon-mq-to-websphere-mq-bridge/${project.artifactId}</repository>
+                    <repository>${aws-account-id}.dkr.ecr.${aws.region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/${project.artifactId}</repository>
                     <tag>latest</tag>
                     <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
                 </configuration>
