@@ -2,9 +2,9 @@
 
 ## Overview
 
-The [JMS Bridge Sample](http://) introduces an architecture which allows your to bridge from your existing on-premisses messaging broker (IBM® MQ in our example) to a managed message broker in the cloud ([Amazon MQ](https://aws.amazon.com/amazon-mq/) in our case).  
+The [JMS Bridge Sample](http://) introduces an architecture which allows your to bridge from your existing on-premises messaging broker (IBM® MQ in our example) to a managed message broker in the cloud ([Amazon MQ](https://aws.amazon.com/amazon-mq/) in our case).  
 
-Quite often, these message brokers are interfaced by many applications and customers struggeling how to migrate these applications to the cloud. To reduce the risk, they don't want to migrate in a "big bang" one step szenario, but looking for an architecture which allows a step by migration to move one service after the other to the cloud.  
+Quite often, these message brokers are interfaced by many applications and customers struggling how to migrate these applications to the cloud. To reduce the risk, they don't want to migrate in a "big bang" one step scenario, but looking for an architecture which allows a step by migration to move one service after the other to the cloud.  
 
 ## Architecture
 
