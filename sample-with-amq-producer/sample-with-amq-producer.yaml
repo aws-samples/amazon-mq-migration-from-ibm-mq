@@ -1,0 +1,155 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a service on AWS Fargate, hosted in a public subnet, and accessible via a public load balancer.
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Stage:
+    Type: String
+    Default: DEV
+    Description: The stage into we deploy this template.
+
+  ProducerInstanceCount:
+    Type: String
+    Default: 1
+    Description: The no of producer containers to deploy.
+
+  MetricWidgetBucket:
+    Type: String
+    Default: fhir-code-bucket-777
+    Description: The bucket to store load test performance graphs.
+
+
+Resources:
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  JMSBridgeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Limits security group ingress and egress traffic for the JMS bridge instance
+      VpcId: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:VPC'}
+      Tags:
+      - Key: Name
+        Value: !Sub '${AWS::StackName}:JMSBridgeSecurityGroup'
+
+  JMSBridgeECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: sample-with-amq-producer
+
+  JMSBridgeECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: sample-with-amq-producer
+      Cpu: 4096
+      Memory: 8192
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      ContainerDefinitions:
+        - Name: sample-with-amq-producer
+          Cpu: 4096
+          Memory: 8192
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/sample-with-amq-producer:latest'
+          Environment:
+            - Name: amazonMQ.brokerURL
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerURL'}
+            - Name: amazonMQ.userName
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerUserName'}
+            - Name: amazonMQ.password
+              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerPassword'}
+
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref CloudWatchLogsGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: sample-with-amq-producer
+
+  CloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: mithunm/ecs/sample-with-amq-producer-cluster
+      RetentionInDays: 30
+
+  JMSBridgeECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: sample-with-amq-producer-service
+      Cluster: !Ref JMSBridgeECSCluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: !Ref ProducerInstanceCount 
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED # to be able to download images from ECR
+          SecurityGroups:
+            - !Ref JMSBridgeSecurityGroup
+          Subnets:
+            - {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:PublicSubnet1'}
+            - {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:PublicSubnet2'}
+      TaskDefinition: !Ref JMSBridgeECSTaskDefinition
+
+  RequestForWidgetService:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: target/sample-with-amq-producer.jar
+      Handler: com.amazonaws.samples.LambdaHandler::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Timeout: 300
+      Tracing: Active
+      Policies:
+        
+        Statement:
+          -  Effect: "Allow"
+             Action:
+                - "cloudwatch:GetDashboard"
+                - "cloudwatch:ListDashboards"
+                - "cloudwatch:PutDashboard"
+                - "cloudwatch:ListMetrics"    
+                - "cloudwatch:GetMetricWidgetImage"
+             Resource:
+               - "*"  
+          -  Effect: "Allow"
+             Action:
+               - "s3:*"
+               
+             Resource:
+               Fn::Join:
+                 - ""
+                 - - "arn:aws:s3:::"
+                   - Ref: MetricWidgetBucket
+                   - "/*"
+
+      Environment:
+          Variables:
+            METRIC_WIDGET_BUCKET: !Ref MetricWidgetBucket
+                 
+      Events:
+        BrokerDashboard:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /get-broker-dashboard
+            Method: get
+
+Outputs:
+  JMSBridgeECSClusterRef:
+    Description: The name of the JMS bridge ECS cluster
+    Value: !Ref JMSBridgeECSCluster
+  GetPerformanceWidget:
+    Description: The name of the API Gateway endpoint to get the cloudwatch widget
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get-broker-dashboard?broker={broker}&queue={queue}"      

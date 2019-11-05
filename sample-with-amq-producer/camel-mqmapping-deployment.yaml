@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: camelbridge-mqmapping
+  labels:
+    app: camelbridge
+    sample: mqmapping
+    version: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: camelbridge
+  template:
+    metadata:
+      labels:
+        app: camelbridge
+    spec:
+      containers:
+      - name: sample-with-native-mq-mapping
+        image: mithun008/sample-with-native-mq-mapping:latest
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+          - name: amazonMQ.userName
+            value: admin
+          - name: amazonMQ.password
+            value: admin1234567
+          - name: amazonMQ.brokerURL
+            value: ssl://b-8a62931e-e088-4820-b42b-08187974e01f-1.mq.us-west-2.amazonaws.com:61617
+          - name: websphereMQ.userName
+            value: mithumal
+          - name: websphereMQ.password
+            value:
+          - name: websphereMQ.hostName
+            value: 34.213.64.86
+          - name: websphereMQ.queueManager
+            value: QM.TEST
+          - name: websphereMQ.channel
+            value: SYSTEM.DEF.SVRCONN
