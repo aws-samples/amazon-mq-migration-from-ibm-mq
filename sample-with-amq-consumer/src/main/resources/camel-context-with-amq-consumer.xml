@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
+
+    <bean id="amazonMQ" class="org.apache.activemq.camel.component.ActiveMQComponent">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="${amazonMQ.brokerURL}" />
+                <property name="userName" value="${amazonMQ.userName}" />
+                <property name="password" value="${amazonMQ.password}" />
+            </bean>
+        </property>
+    </bean>
+    <bean id="testLauncher" class="com.amazonaws.samples.AmqJmsToolsConsumerTrigger"/>
+
+	
+	
+    <camelContext id="wmq-to-amq-bridge" xmlns="http://camel.apache.org/schema/spring">
+    
+        <route id="trigger-amq-consumer">
+            <description>Camel Route to trigger the launch of perf test consumers.</description>
+            <from uri="amazonMQ:topic:cons.notify"/>
+            <log message="Starting consumer test.."/>
+            <to uri="seda:longRunningPhase"/>
+        </route>
+        <!-- 
+        <route>
+		    <from uri="jetty:http://0.0.0.0/testResult"/>
+		    <setExchangePattern pattern="InOut" />
+			<convertBodyTo type="java.lang.String" charset="UTF-8"/>
+		    <process ref="testResultUtil"/>
+		    
+		</route>
+		-->
+        <route>
+            <description>Camel Route to trigger async performance benchmark tool.</description>
+            <from uri="seda:longRunningPhase?concurrentConsumers=1"/>
+            <process ref="testLauncher"/>
+            <log message="Completed consumer test..."/>
+        </route>
+    </camelContext>
+    
+</beans>

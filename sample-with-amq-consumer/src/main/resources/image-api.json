@@ -1,0 +1,14 @@
+{
+    "metrics": [
+        [ "AWS/AmazonMQ", "EnqueueCount", "Broker", "Tanla-POC-V3-1", "Queue", "TEST.FOO12" ],
+        [ ".", "DequeueCount", ".", ".", ".", "." ]
+    ],
+    "view": "timeSeries",
+    "stacked": false,
+    "stat": "Maximum",
+    "period": 60,
+    "width": 1704,
+    "height": 250,
+    "start": "-PT3H",
+    "end": "P0D"
+}
