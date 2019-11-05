@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <aws.region>eu-central-1</aws.region>
+        <aws.region>us-west-2</aws.region>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -67,5 +67,9 @@
         <module>sample-with-aws-ssm</module>
         <module>sample-with-nativemq-mapping</module>
         <module>load-generator</module>
+
+
+        <module>sample-with-amq-producer</module>
+        <module>sample-with-amq-consumer</module>
     </modules>
 </project>
