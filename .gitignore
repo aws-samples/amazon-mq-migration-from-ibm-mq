@@ -6,3 +6,5 @@
 .settings/
 .vscode/
 target/
+sample-with-amq-consumer/serverless-output.yaml
+sample-with-amq-producer/serverless-output.yaml
