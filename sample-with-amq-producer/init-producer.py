@@ -3,17 +3,34 @@ import sys
 import os
 import stomp
 import ssl
+import argparse
 
-user = sys.argv[1]
-password = sys.argv[2]
-host = sys.argv[3]
-port = sys.argv[4]
-#destination =  ["/topic/event"]
-#destination = destination[0]
+parser = argparse.ArgumentParser()
+parser.add_argument("user")
+parser.add_argument("password")
+parser.add_argument("host")
+parser.add_argument("port")
+parser.add_argument("file",help="Path to trigger file with name")
+parser.add_argument("type",help='queue/topic')
+parser.add_argument("name",help='destination name')
 
-print("Host is ",host)
-# messages = 10000
-data = "Hello World from Python"
+args = parser.parse_args()
+
+print(args.host)
+
+user = args.user
+password = args.password
+host = args.host
+port = args.port
+triggerFile = args.file
+destination = args.name
+destype = args.type
+
+f = open(triggerFile,'r')
+
+data = f.read()
+
+print(data)
 
 conn = stomp.Connection(host_and_ports = [(host, port)])
 conn.set_ssl(for_hosts=[(host, port)], ssl_version=ssl.PROTOCOL_TLS)
@@ -24,7 +41,7 @@ print("Connected...")
 print(data)  
 #conn.subscribe(destination='/queue/testP', id=1, ack='auto')
 
-conn.send(body='Mithun hello python', destination='/queue/testP')
+conn.send(body=data, destination='/'+destype+'/'+destination)
 
 
 conn.disconnect()

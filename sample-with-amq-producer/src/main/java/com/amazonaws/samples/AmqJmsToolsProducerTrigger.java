@@ -16,6 +16,7 @@ public class AmqJmsToolsProducerTrigger implements Processor {
 	
 
 	public void process(Exchange exchange) throws Exception {
+		System.out.println("Entering process method...");
 
 		String triggerMsg = exchange.getIn()
                             .getBody(String.class); 
