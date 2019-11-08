@@ -74,7 +74,7 @@
         --template-file serverless-output.yaml \
         --stack-name sample-with-amq-producer \
         --capabilities CAPABILITY_IAM \
-        --parameters ParameterKey=MetricWidgetBucket,ParameterValue=<<CODE_PACKAGE_BUCKET>>
+        --parameter-overrides ParameterKey=MetricWidgetBucket,ParameterValue=<<CODE_PACKAGE_BUCKET>>
     ```
 
     We have now deployed the container to send messages to a broker. The template only deploys one instance of the container but you can add additional instances of the container by modifying the ECS [TaskDefintion](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-service.html#cfn-ecs-service-desiredcount).You can easily go upto 50 producer threads on a single instance of the container. If you need more than that you can increase the desired count. The thread count specified in the trigger message would then apply to each of the container. 
