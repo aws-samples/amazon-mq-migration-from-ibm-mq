@@ -2,6 +2,8 @@
 
 1. ### Overview of the architecture
     In this section we will deploy a set of Amazon MQ senders and receivers. The sender and receiver threads are created based on the JmsTools framework. The details for this framework can be found [here](https://github.com/mithun008/JmsTools). The Jmstools package is wrapped as a bean in a camel container. The tests would be triggered by sending a message to a topic with details of the test to run. Jmstools provides several configurable options to initiate test for a duration or for a certain no of messages, various message sizes and even various protocols. In this section we will only focus on Openwire but it can be changed for AMQP as well.
+    
+    ![Benchmark Architecture](/images/benchmark-arch.png)
 
     We will first deploy the receiver image and then the sender image. The tests can be repeated as many times as needed for various configurations.
 
