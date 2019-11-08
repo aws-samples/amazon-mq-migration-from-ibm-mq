@@ -119,7 +119,7 @@
         --template-file serverless-output.yaml \
         --stack-name sample-with-amq-consumer \
         --capabilities CAPABILITY_IAM \
-        --parameters ParameterKey=MetricWidgetBucket,ParameterValue=<<CODE_PACKAGE_BUCKET>>
+        --parameter-overrides ParameterKey=MetricWidgetBucket,ParameterValue=<<CODE_PACKAGE_BUCKET>>
     ```
 
     We have now deployed the container to receive messages from a broker. The template only deploys one instance of the container but you can add additional instances of the container by modifying the ECS [TaskDefintion](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-service.html#cfn-ecs-service-desiredcount).You can easily go upto 50 consumer threads on a single instance of the container. If you need more than that you can increase the desired count. The thread count specified in the trigger message would then apply to each of the container. 
@@ -160,7 +160,7 @@
     Run the following command to send the message to the notify topic. The parameters used in the command are for the notify broker which in our case is the one created in step-2 of the workshpo. **Please note that the port used is the STOMP transport port.**
 
     ``` bash
-    cd sample-with-amq-consumer
+    cd sample-with-amq-producer
 
     pip install stomp.py
 

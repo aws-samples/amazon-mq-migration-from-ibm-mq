@@ -15,7 +15,7 @@ Parameters:
 
   MetricWidgetBucket:
     Type: String
-    Default: fhir-code-bucket-777
+    Default: ''
     Description: The bucket to store load test performance graphs.
 
 
