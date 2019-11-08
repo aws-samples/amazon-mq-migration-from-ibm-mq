@@ -27,3 +27,5 @@ To build and run this example, you have to follow 6 steps we will discuss in det
 * **[Step 5: Generate load to see auto-scaling in action](/step-5.md)** - Here, we are generating load to verify, how auto-scaling kicks in and scales our JMS bridge.
 
 * **[Step 6: Terminate and delete all resources](/step-6.md)** - Here, we are deleting the resources we created so that no additional cost occurs.
+
+* **[Step 7: Run Amazon MQ benchmark tests](/step-7.md)** - Here, we will be deploying several producers and consumers and run a benchmark tool.
