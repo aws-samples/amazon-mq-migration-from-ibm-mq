@@ -1,7 +1,7 @@
 # (Optional) Step 6 : Benchmarking Amazon MQ broker
 
 1. ### Overview of the architecture
-    In this section we will deploy a set of Amazon MQ senders and receivers. The sender and receiver threads are created based on the JmsTools framework. The details for this framework can be found [here](https://github.com/mithun008/JmsTools). The Jmstools package is wrapped as a bean in a camel container. The tests would be triggered by sending a message to a topic with details of the test to run. Jmstools provides several configurable options to initiate test for a duration or for a certain no of messages, various message sizes and even various protocols. In this section we will only focus on Openwire but it can be changed for AMQP as well.
+    In this section we will deploy a set of Amazon MQ senders and receivers. The sender and receiver threads are created using the JmsTools framework. The details for this framework can be found [here](https://github.com/mithun008/JmsTools). The Jmstools package is wrapped as a bean in a camel container. The tests would be triggered by sending a message to a topic with details of the test to run. Jmstools provides several configurable options to initiate test for a duration or for a certain no of messages, various message sizes and even various protocols. In this section we will only focus on Openwire but it can be changed for AMQP as well.
     
     ![Benchmark Architecture](/images/benchmark-arch.png)
 
@@ -18,10 +18,10 @@
     mvn clean package
     ```
 
-    The maven build created several jar files under the shaded-jars file. Run the following command to include the jars in maven repository.
+    The maven build created several jar files under the shaded-jars file. Run the following command to include the active mq JMS related jars in maven repository.
 
     ``` bash
-    mvn install:install-file -Dfile=./JmsTools/shaded-jars/AmqJmsConsumer.jar -DgroupId=name.wramner.jmstools.consumer -DartifactId=jmstools -Dversion=1.10 -Dpackaging=jar
+    mvn install:install-file -Dfile=./shaded-jars/AmqJmsConsumer.jar -DgroupId=name.wramner.jmstools.consumer -DartifactId=jmstools -Dversion=1.10 -Dpackaging=jar
 
     mvn install:install-file -Dfile=./shaded-jars/AmqJmsProducer.jar -DgroupId=name.wramner.jmstools.producer -DartifactId=jmstools -Dversion=1.10 -Dpackaging=jar
 
