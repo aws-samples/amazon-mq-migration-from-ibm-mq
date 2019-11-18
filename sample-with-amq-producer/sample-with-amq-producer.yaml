@@ -18,6 +18,20 @@ Parameters:
     Default: ''
     Description: The bucket to store load test performance graphs.
 
+  AmazonMQBrokerUserNameRef:
+    Type: String
+    Default: ''
+    Description: The user name for the broker used to notify the producers
+
+  AmazonMQBrokerPasswordRef:
+    Type: String
+    Default: ''
+    Description: The password for the broker used to notify the producers
+
+  AmazonMQBrokerURLRef:
+    Type: String
+    Default: ''
+    Description: The url for the broker used to notify the producers
 
 Resources:
   ECSTaskExecutionRole:
@@ -64,11 +78,11 @@ Resources:
           Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/sample-with-amq-producer:latest'
           Environment:
             - Name: amazonMQ.brokerURL
-              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerURL'}
+              Value: !Ref AmazonMQBrokerURLRef
             - Name: amazonMQ.userName
-              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerUserName'}
+              Value: !Ref AmazonMQBrokerUserNameRef
             - Name: amazonMQ.password
-              Value: {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:AmazonMQBrokerPassword'}
+              Value: !Ref AmazonMQBrokerPasswordRef
 
           LogConfiguration:
             LogDriver: awslogs
