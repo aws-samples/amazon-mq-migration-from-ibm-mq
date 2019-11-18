@@ -32,11 +32,11 @@
 
 1. ### Deploy the Amazon MQ producer container
 
-    In this section we will deploy a camel conatiner which will trigger a message sender with several threads sending messages at the same time. The number of threads can be controlled by a trigger file which is present under sample-with-amq-producer/src/main/resources/trigger.json. The json file has settings which indicate the min message size, max message size, no of threads, the duration in mins to run the producer. It also has the credentials and url to connect to the broker.
+    In this section we will deploy a camel conatiner which will trigger a message sender with several threads sending messages at the same time. The number of threads can be controlled by a trigger file which is present under sample-with-amq-producer/src/main/resources/trigger.json. The json file has settings which indicate the min message size,max message size, no of threads, the duration in mins to run the producer. It also has the credentials and url to connect to the broker. 
 
     The test tool is based on the JmsTools utility. More information can be found [here](https://github.com/mithun008/JmsTools).
 
-    We will first create a set a Amazon MQ consumer ECS service which will have several receiver  
+    We will first create a set a Amazon MQ producer ECS service which will have several producer threads. The producer is initiated by sending a trigger message to a notify topic. 
 
 
     Create a S3 bucket to upload the code package that will be used to run the producers. It also requires a new ECR repository to host the docker container for producer.
@@ -48,7 +48,7 @@
 
     ```
 
-    We will now create the deployment package using SAM(Serverless Access Model) template to upload the code and provision the resources. SAM makes it easy to deploy serverless resources like API gateway and lamndda functions. More information about SAM can be found [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html)
+    We will now create the deployment package using SAM(Serverless Access Model) template to upload the code and provision the resources. SAM makes it easy to deploy serverless resources like API gateway and lamndda functions. More information about SAM can be found [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html).The template only deploys one instance of the container but you can add additional instances of the container by modifying the ECS [TaskDefintion](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-service.html#cfn-ecs-service-desiredcount).You can easily go upto 50 producer threads on a single instance of the container. If you need more than that you can increase the desired count. **The thread count specified in the trigger message would then apply to each of the container.** 
 
     ``` bash
     cd sample-with-amq-producer
@@ -67,19 +67,21 @@
         --output-template-file serverless-output.yaml \
         --s3-bucket <<CODE_PACKAGE_BUCKET>>
     ```
-    Run the below command to deploy the resources. The command will wait till the deployment is complete. You can check the status of the deployment by navigating to the cloudformation console.
+    Run the below command to deploy the resources. The command will wait till the deployment is complete. You can check the status of the deployment by navigating to the cloudformation console. **The broker credentials used in this command are for creating the topic on which the producer controller would subscribe and trigger the producer threads. The trigger message will have the credentials for the broker which needs to be performance tested.**
 
     ``` bash
     aws cloudformation deploy \
         --template-file serverless-output.yaml \
         --stack-name sample-with-amq-producer \
         --capabilities CAPABILITY_IAM \
-        --parameter-overrides ParameterKey=MetricWidgetBucket,ParameterValue=<<CODE_PACKAGE_BUCKET>>
+        --parameter-overrides MetricWidgetBucket=<<CODE_PACKAGE_BUCKET>> \
+        AmazonMQBrokerUserNameRef=<<BROKER_USER_NAME>> \
+        AmazonMQBrokerPasswordRef=<<BROKER_PASSWORD>> \
+        AmazonMQBrokerURLRef=<<BROKER_END_POINT>>
+
     ```
 
-    We have now deployed the container to send messages to a broker. The template only deploys one instance of the container but you can add additional instances of the container by modifying the ECS [TaskDefintion](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-service.html#cfn-ecs-service-desiredcount).You can easily go upto 50 producer threads on a single instance of the container. If you need more than that you can increase the desired count. The thread count specified in the trigger message would then apply to each of the container. 
-
-    The producer deployment will start a topic listener on the Amazon MQ broker that was created in step-1 of the workshop. The name of the topic will be prod.notify. If you have deployed more than one container instances it will show those many topic consumers. 
+    We have now deployed the container to send messages to a broker. The producer deployment will start a topic listener on the Amazon MQ broker that was specified in the command line of the deplpy command. The name of the topic will be prod.notify. If you have deployed more than one container instances it will show those many topic consumers. 
 
 1.  ### Deploy the Amazon MQ consumer container
 
@@ -119,21 +121,24 @@
         --template-file serverless-output.yaml \
         --stack-name sample-with-amq-consumer \
         --capabilities CAPABILITY_IAM \
-        --parameter-overrides ParameterKey=MetricWidgetBucket,ParameterValue=<<CODE_PACKAGE_BUCKET>>
+        --parameter-overrides MetricWidgetBucket=<<CODE_PACKAGE_BUCKET>> \
+        AmazonMQBrokerUserNameRef=<<BROKER_USER_NAME>> \
+        AmazonMQBrokerPasswordRef=<<BROKER_PASSWORD>> \
+        AmazonMQBrokerURLRef=<<BROKER_END_POINT>>
     ```
 
-    We have now deployed the container to receive messages from a broker. The template only deploys one instance of the container but you can add additional instances of the container by modifying the ECS [TaskDefintion](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-service.html#cfn-ecs-service-desiredcount).You can easily go upto 50 consumer threads on a single instance of the container. If you need more than that you can increase the desired count. The thread count specified in the trigger message would then apply to each of the container. 
+    We have now deployed the container to receive messages from a broker. The template only deploys one instance of the container but you can add additional instances of the container by modifying the ECS [TaskDefintion](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-service.html#cfn-ecs-service-desiredcount.You can easily go upto 50 consumer threads on a single instance of the container. If you need more than that you can increase the desired count. The thread count specified in the trigger message would then apply to each of the container. 
 
     The consumer deployment will start a topic listener on the Amazon MQ broker that was created in step-1 of the workshop. The name of the topic will be cons.notify. If you have deployed more than one container instances it will show those many topic consumers. 
 
     We are now ready to start the test.
 
 1. ### Start the consumer
-    Producers and consumers can be started in any order but for this workshop lets start the consumer first. The consumer process can be triggered by sending a trigger message on the cons.notify topic. The trigger message is present under sample-with-amq-consumer/src/resources/trigger.json. It contains all the parameters that Jmstools uses to launch its test.
+    Producers and consumers can be started in any order but for this workshop lets start the consumer first. The consumer process can be triggered by sending a trigger message on the **cons.notify** topic. The trigger message is present under sample-with-amq-consumer/src/resources/trigger.json. It contains all the parameters that Jmstools uses to launch its test.
 
     Edit the trigger.json to set parameters based on your test. Save it once you are done. **The settings on trigger.json refer to the broker which needs to be performance tested.**
 
-    Run the following command to send the message to the notify topic. The parameters used in the command are for the notify broker which in our case is the one created in step-2 of the workshpo. **Please note that the port used is the STOMP transport port.**
+    Run the following command to send the message to the notify topic. The parameters(host,user,password and port) used in the command refer to the broker credentials used as part of the producer and consumer deploymnent. Please specify the hostname of the active broker in case you have an active standby broker config. **Please note that the port used is the STOMP transport port.**
 
     ``` bash
     cd sample-with-amq-consumer
@@ -144,7 +149,7 @@
         <<broker-password>> \
         <<broker-host>> \
         <stomp-port>> \
-        src/main/resources/trigger.json 
+        src/main/resources/trigger.json \
         topic \
         cons.notify
 
@@ -168,7 +173,7 @@
         <<broker-password>> \
         <<broker-host>> \
         <stomp-port>> \
-        src/main/resources/trigger.json 
+        src/main/resources/trigger.json \
         topic \
         prod.notify
 
