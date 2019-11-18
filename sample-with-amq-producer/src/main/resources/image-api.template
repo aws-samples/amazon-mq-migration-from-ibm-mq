@@ -7,8 +7,8 @@
     "stacked": false,
     "stat": "Maximum",
     "period": 60,
-    "width": 1704,
+    "width": 1679,
     "height": 250,
-    "start": "-PT3H",
+    "start": "-PT1H",
     "end": "P0D"
 }
