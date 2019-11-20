@@ -1,5 +1,5 @@
 # (Optional) Step 6 : Benchmarking Amazon MQ broker
-**This section assumes that you have executed [Step 3](/step-3.md) to install some of the pre-requisites like maven and docker setup. Please go back to step 3 if you have not installed the pre-requisites.**
+**This section assumes that you have executed [Step 3](/step-3.md) to install some of the pre-requisites like maven and docker setup. Please go back to step 3 if you have not installed the pre-requisites. It also need jdk 1.8. Please upgrade your environment in case you are at a lower jdk version**
 
 1. ### Overview of the architecture
     In this section we will deploy a set of Amazon MQ senders and receivers. The sender and receiver threads are created using the JmsTools framework. The details for this framework can be found [here](https://github.com/mithun008/JmsTools). The Jmstools package is wrapped as a bean in a camel container. The tests would be triggered by sending a message to a topic with details of the test to run. Jmstools provides several configurable options to initiate test for a duration or for a certain no of messages, various message sizes and even various protocols. In this section we will only focus on Openwire but it can be changed for AMQP as well.
@@ -184,7 +184,11 @@
 
 1. ### Capture the results
 
-    As part of the producer and consumer deployment, we also deployed an API gateway and lambda function which queries cloudwatch to get the desired widget with enqueue and dequeue count for a specified period of time. The widget is controlled by configuration file called image-api.json. Its present under src/main/resources folder for each of the samples. You can modify it based on your widget. However, it would need redeployment of the package.
+    As part of the producer and consumer deployment, we also deployed an API gateway and lambda function which queries cloudwatch to get the desired widget with enqueue and dequeue count for a specified period of time. The widget is controlled by configuration file called image-api.template. Its present under src/main/resources folder for each of the samples. You can modify it based on your widget. However, it would need redeployment of the package.
+
+    The cloudwatch widget can be customized based on your specific requirements. The widget used in the worksop shows the enqueue rate and dequeue rate for the test queue. It can be modified to display the CPU stats of the broker or the memory stats of the broker.
+    More details about cloudwatch widget can be found [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_GetMetricWidgetImage.html).
+
 
     You can use either of the two stacks to get the API endpoint. Run the following command to get the API_END_POINT.
 
