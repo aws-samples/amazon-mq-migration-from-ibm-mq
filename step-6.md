@@ -1,4 +1,5 @@
 # (Optional) Step 6 : Benchmarking Amazon MQ broker
+**This section assumes that you have executed [Step 3](/step-3.md) to install some of the pre-requisites like maven and docker setup. Please go back to step 3 if you have not installed the pre-requisites.**
 
 1. ### Overview of the architecture
     In this section we will deploy a set of Amazon MQ senders and receivers. The sender and receiver threads are created using the JmsTools framework. The details for this framework can be found [here](https://github.com/mithun008/JmsTools). The Jmstools package is wrapped as a bean in a camel container. The tests would be triggered by sending a message to a topic with details of the test to run. Jmstools provides several configurable options to initiate test for a duration or for a certain no of messages, various message sizes and even various protocols. In this section we will only focus on Openwire but it can be changed for AMQP as well.
@@ -48,12 +49,12 @@
 
     ```
 
-    We will now create the deployment package using SAM(Serverless Access Model) template to upload the code and provision the resources. SAM makes it easy to deploy serverless resources like API gateway and lamndda functions. More information about SAM can be found [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html).The template only deploys one instance of the container but you can add additional instances of the container by modifying the ECS [TaskDefintion](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-service.html#cfn-ecs-service-desiredcount).You can easily go upto 50 producer threads on a single instance of the container. If you need more than that you can increase the desired count. **The thread count specified in the trigger message would then apply to each of the container.** 
+    We will now create the deployment package using SAM(Serverless Access Model) template to upload the code and provision the resources. SAM makes it easy to deploy serverless resources like API gateway and lamndda functions. More information about SAM can be found [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html).The template only deploys one instance of the container but you can add additional instances of the container by modifying the ECS [TaskDefintion](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-service.html#cfn-ecs-service-desiredcount).You can easily go upto 50 producer threads on a single instance of the container. If you need more than that you can increase the desired count. **The thread count specified in the trigger message would then apply to each of the container.** Go back to your root directory and run the following command.
 
     ``` bash
-    cd sample-with-amq-producer
+    cd sample-with-amq-producer/
     ```
-    In the next step, we will build the source code and deploy it as a docker conatiner within ECS.
+    In the next step, we will build the source code and deploy it as a docker conatiner within ECS. 
 
     ``` bash
     mvn clean deploy
@@ -95,7 +96,7 @@
     aws ecr create-repository  --repository-name amazon-mq-migration-from-ibm-mq/sample-with-amq-consumer
     ```
 
-    We will now create the deployment package using SAM(Serverless Access Model) template to upload the code and provision the resources. SAM makes it easy to deploy serverless resources like API gateway and lamndda functions. More information about SAM can be found [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html)
+    We will now create the deployment package using SAM(Serverless Access Model) template to upload the code and provision the resources. SAM makes it easy to deploy serverless resources like API gateway and lamndda functions. More information about SAM can be found [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html). Go back to your home directory and run the following commands.
 
     ``` bash
     cd sample-with-amq-consumer
