@@ -1,5 +1,5 @@
 # (Optional) Step 6 : Benchmarking Amazon MQ broker
-**This section assumes that you have executed [Step 3](/step-3.md) to install some of the pre-requisites like maven and docker setup. Please go back to step 3 if you have not installed the pre-requisites. It also need jdk 1.8. Please upgrade your environment in case you are at a lower jdk version**
+**This section assumes that you have executed [Step 3](/step-3.md) to install some of the pre-requisites like maven and docker. Please go back to step 3 if you have not installed the pre-requisites. It also needs jdk 1.8. Please upgrade your environment in case you are at a lower jdk version**
 
 1. ### Overview of the architecture
     In this section we will deploy a set of Amazon MQ senders and receivers. The sender and receiver threads are created using the JmsTools framework. The details for this framework can be found [here](https://github.com/mithun008/JmsTools). The Jmstools package is wrapped as a bean in a camel container. The tests would be triggered by sending a message to a topic with details of the test to run. Jmstools provides several configurable options to initiate test for a duration or for a certain no of messages, various message sizes and even various protocols. In this section we will only focus on Openwire but it can be changed for AMQP as well.
@@ -201,8 +201,13 @@
 
     Copy the url output from the above command and edit it to replace the broker and queue name placeholder. Please note that the broker names will need to -1 suffix if its the broker that is active or else it will be -2 suffix. The queue name is the name of the queue that was used as part of the test. Paste the edited link on a browser and it will respond back with a link. Click on the link to get the performanc widget graph.
 
+    Here is a sample widget graph showing the enqueue and dequeue rate of the messages during a test. The widget can be customized based on the metrics that are needed to be captured.
 
-    You can stop and delete the sender and receover processed by deleting the CloudFormation stacks.
+    ![PerformanceWidget](/images/metric-widget.png)
+    
+
+# Cleanup
+You can stop and delete the sender and receover processed by deleting the CloudFormation stacks.
 
     ``` bash
     aws cloudformation delete-stack \
@@ -212,10 +217,8 @@
         --stack-name sample-with-amq-consumer
 
     ```
-
-
 # Completion
 
-Congratulations, you've successfully completed step 5! You can move on to [Step 7: Terminate and delete all resources](/step-7.md)
+Congratulations, you've successfully completed step 6! You can move on to [Step 7: Terminate and delete all resources](/step-7.md)
 
 [Return the the sample landing page](/README.md)
