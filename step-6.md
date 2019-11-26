@@ -207,16 +207,16 @@
     
 
 # Cleanup
-You can stop and delete the sender and receover processed by deleting the CloudFormation stacks.
+You can stop and delete the sender and receover processes by deleting the CloudFormation stacks.
 
-    ``` bash
+    
     aws cloudformation delete-stack \
         --stack-name sample-with-amq-producer
 
     aws cloudformation delete-stack \
         --stack-name sample-with-amq-consumer
 
-    ```
+    
 # Completion
 
 Congratulations, you've successfully completed step 6! You can move on to [Step 7: Terminate and delete all resources](/step-7.md)
