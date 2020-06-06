@@ -19,7 +19,7 @@
     mvn clean package
     ```
 
-    The maven build created several jar files under the shaded-jars file. Run the following command to include the active mq JMS related jars in maven repository.
+    The maven build created several jar files under the shaded-jars file. Run the following command to include the Apache Active MQ JMS related jars in maven repository.
 
     ``` bash
     mvn install:install-file -Dfile=./shaded-jars/AmqJmsConsumer.jar -DgroupId=name.wramner.jmstools.consumer -DartifactId=jmstools -Dversion=1.10 -Dpackaging=jar

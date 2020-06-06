@@ -38,8 +38,8 @@ public class PerfTestResultsUtil {
 		exchange.getOut().setBody(arr);
 		exchange.getOut().setHeader(Exchange.CONTENT_TYPE,"image/jpg");
 		exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, "200");
-		
 	}
+
 	public static void main(String []args) throws IOException{
 		String metricsRequest = "{\n" + 
 				"    \"metrics\": [\n" + 
@@ -72,14 +72,11 @@ public class PerfTestResultsUtil {
 	    
 	    ImageIO.write(image, "png", baos);
 	    byte[] imageData = baos.toByteArray();
-	    
-	    
+
 		//ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		FileOutputStream out = new FileOutputStream("temp.png");
 		out.write(imageData);
 		//out.getChannel().write(imageData);
 		out.close();
-		
 	}
-
 }

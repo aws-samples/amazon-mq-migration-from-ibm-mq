@@ -6,7 +6,7 @@ In this step you will deply the entire sample via [AWS CloudFormation](https://a
 
 > To be able to run this step, it's required to have the [AWS CLI](https://aws.amazon.com/cli/) installed!
 
-Run the first command to launch the AWS CloudFormation template. The second command will wait, until the AWS CloudFormation stack was launched successfuly and ready to use. Alternatively, you can also open your CloudFormation console and watch the resource creation process. It takes ~ 15 minutes to complete:
+Run the first command from the root directory of this project to launch the AWS CloudFormation template. The second command will wait, until the AWS CloudFormation stack was launched successfuly and ready to use. Alternatively, you can also open your CloudFormation console and watch the resource creation process. It takes ~ 15 minutes to complete:
 
 ```bash
 aws cloudformation create-stack \

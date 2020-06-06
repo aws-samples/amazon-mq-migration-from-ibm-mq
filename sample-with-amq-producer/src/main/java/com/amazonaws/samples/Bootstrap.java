@@ -8,6 +8,5 @@ public class Bootstrap {
         Main main = new Main();
         main.setApplicationContextUri("camel-context-with-amq-producer.xml");
         main.run(args);
-        
     }
 }

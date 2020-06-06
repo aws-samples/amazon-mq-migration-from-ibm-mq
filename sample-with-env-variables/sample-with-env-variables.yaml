@@ -104,8 +104,7 @@ Resources:
             - {'Fn::ImportValue': !Sub '${Stage}:JMS-BRIDGE:PublicSubnet2'}
       TaskDefinition: !Ref JMSBridgeECSTaskDefinition
 
-# Auto-scaling configuration
-
+  # Auto-scaling configuration
   ServiceAutoScalingRole:
     Type: AWS::IAM::Role
     Properties:

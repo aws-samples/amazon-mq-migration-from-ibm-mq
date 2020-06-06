@@ -29,6 +29,6 @@ aws cloudformation delete-stack \
 
 # Completion
 
-Congratulations, you've successfully completed step 5! You can move on to [Step 6: Terminate and delete all resources](/step-6.md)
+Congratulations, you've successfully completed step 5! You can move on to [Step 6: Benchmarking Amazon MQ broker](/step-6.md)
 
 [Return the the sample landing page](/README.md)

@@ -1,13 +1,11 @@
 package com.amazonaws.samples;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
-
 
 import com.amazonaws.serverless.proxy.jersey.JerseyLambdaContainerHandler;
 import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
@@ -17,8 +15,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-
-
 
 /**
  * This is the main Lambda handler class. It implements the RequestStreamHandler interface from the lambda-core package (see
@@ -35,7 +31,6 @@ public class LambdaHandler implements RequestStreamHandler {
             .packages("com.amazonaws.samples")
             .register(JacksonFeature.class)
             .register(UncaughtException.class);
-    
 
     // Initialize the serverless-java-container library as a Jersey proxy
     private static final JerseyLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler
@@ -53,9 +48,8 @@ public class LambdaHandler implements RequestStreamHandler {
         // just in case it wasn't closed by the mapper
         outputStream.close();
     }
+
     public static AmazonS3 getS3Client() {
-    	
         return s3Client;
     }
-
 }

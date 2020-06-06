@@ -183,7 +183,7 @@
 				</executions>
 				<configuration>
 
-					<repository>${aws-account-id}.dkr.ecr.${aws.region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/${project.artifactId}</repository>
+					<repository>${aws-account-id}.dkr.ecr.${aws-region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/${project.artifactId}</repository>
 					<tag>latest</tag>
 					<useMavenSettingsForAuth>true</useMavenSettingsForAuth>
 				</configuration>

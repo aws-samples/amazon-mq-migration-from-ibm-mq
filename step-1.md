@@ -26,27 +26,33 @@ make build-devserver
 
 ### 3. Tag the Docker image and upload it to Amazon ECR.
 
-Now we are tagging the locally created Docker image with the tag '9.0.5' and 'latest' and pushing it to your ECR repository. Before you can run the following commands, please replace '\<account-id>' and '\<region>' with your values.
+Now we are tagging the locally created Docker image with the tag '9.1.0.0' and 'latest' and pushing it to your ECR repository.
 
 ``` bash
-$(aws ecr get-login --no-include-email --region <region>)
+region=$(aws configure get region)
+accountid=$(aws sts get-caller-identity --query Account --output text)
+
+aws ecr get-login-password \
+  --region $region | docker login \
+  --username AWS \
+  --password-stdin $accountid.dkr.ecr.$region.amazonaws.com
 
 aws ecr create-repository \
     --repository-name amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev
 
-docker tag  mqadvanced-server-dev:9.0.5.0-x86_64-ubuntu-16.04 <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:9.0.5
+docker tag mqadvanced-server-dev:9.1.0.0-x86_64-ubuntu-16.04 $accountid.dkr.ecr.$region.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:9.1.0.0
 
-docker push <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:9.0.5
+docker push $accountid.dkr.ecr.$region.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:9.1.0.0
 
-docker tag  mqadvanced-server-dev:9.0.5.0-x86_64-ubuntu-16.04 <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:latest
+docker tag mqadvanced-server-dev:9.1.0.0-x86_64-ubuntu-16.04 $accountid.dkr.ecr.$region.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:latest
 
-docker push <account-id>.dkr.ecr.<region>.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:latest
+docker push $accountid.dkr.ecr.$region.amazonaws.com/amazon-mq-migration-from-ibm-mq/mqadvanced-server-dev:latest
 ```
 
 ### 4. Run und test it locally.
 
 ``` bash
-docker run -it --rm -e LICENSE=accept -e MQ_QMGR_NAME=QMGR -p 9443:9443 -p 1414:1414 mqadvanced-server-dev:9.0.5.0-x86_64-ubuntu-16.04
+docker run -it --rm -e LICENSE=accept -e MQ_QMGR_NAME=QMGR -p 9443:9443 -p 1414:1414 mqadvanced-server-dev:9.1.0.0-x86_64-ubuntu-16.04
 ```
 
 To access the service, go to:  
@@ -68,7 +74,7 @@ After a successful login, you should see a screen similar to this one:
 
 > To be able to run this step, it's required to have the [AWS CLI](https://aws.amazon.com/cli/) installed!
 
-Now we are ready to run run our IBM® MQ broker as Amazon ECS task in Fargate. Run the first command to launch the AWS CloudFormation template. The second command will wait, until the AWS CloudFormation stack was launched successfuly and is ready to use. Alternatively, you can also open your CloudFormation console and watch the resource creation process. It takes ~ 3 minutes to complete:
+Now we are ready to run run our IBM® MQ broker as Amazon ECS task in Fargate. Run the first command from the root directory of this project to launch the AWS CloudFormation template. The second command will wait, until the AWS CloudFormation stack was launched successfuly and is ready to use. Alternatively, you can also open your CloudFormation console and watch the resource creation process. It takes ~ 3 minutes to complete:
 
 ```bash
 aws cloudformation create-stack \

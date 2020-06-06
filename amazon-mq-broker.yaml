@@ -123,7 +123,7 @@ Resources:
       BrokerName: AmazonMQBroker
       DeploymentMode: SINGLE_INSTANCE  # use ACTIVE_STANDBY_MULTI_AZ for high availability and resiliency
       EngineType: ActiveMQ
-      EngineVersion: 5.15.9
+      EngineVersion: 5.15.10
       HostInstanceType: mq.m5.large
       Logs:
         General: true

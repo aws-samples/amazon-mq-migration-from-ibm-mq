@@ -33,22 +33,17 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-
 @Path("/get-broker-dashboard")
-
-
 public class CloudwatchResource {
+
 	@Context
 	SecurityContext securityContext;
-
 
 	static final Logger log = LogManager.getLogger(CloudwatchResource.class);
 	
 	private static final String METRIC_WIDGET_BUCKET = System.getenv("METRIC_WIDGET_BUCKET");
 	
 	public CloudwatchResource() {
-		
-
 	}
 	
 	@GET
@@ -115,8 +110,5 @@ public class CloudwatchResource {
 				"</html>";
 		
 		return Response.status(200).entity(linkedText).build();
-
-	}
-
-	
+	}	
 }

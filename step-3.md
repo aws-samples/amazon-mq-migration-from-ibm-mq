@@ -9,7 +9,13 @@ In this step you will compile, package, dockerize and upload the JMS bridge samp
 First, we will create the Amazon ECR repositories which will host our Docker images. You can look up these images later [here](https://console.aws.amazon.com/ecs/home?#/repositories):
 
 ``` bash
-$(aws ecr get-login --no-include-email --region <region>)
+region=$(aws configure get region)
+accountid=$(aws sts get-caller-identity --query Account --output text)
+
+aws ecr get-login-password \
+    --region $region | docker login \
+    --username AWS \
+    --password-stdin $accountid.dkr.ecr.$region.amazonaws.com
 
 aws ecr create-repository \
     --repository-name amazon-mq-migration-from-ibm-mq/sample-with-env-variables
@@ -33,18 +39,18 @@ In this step we are using Apache Maven, to automaticelly achieve to following pe
 - compile the Java based sample application
 - package the application in a self-contained uber-JAR
 - create a Docker image which contains the sample
-- upload this image to Amazon ECR, a private Docker repository
+- upload this image to [Amazon ECR](https://aws.amazon.com/ecr/), a private Docker repository
 
 Next, run the following command:
 
 ``` bash
-aws ecr get-login --no-include-email
+aws ecr get-login-password
 ```
 
-It will return an output like the following, where you have to look up the password for the basic Auth against Amazon ECR (followed by the -p):
+It will return the password for the basic Auth against Amazon ECR:
 
 ``` bash
-docker login -u AWS -p eyJwY...1MX0= https://xxxxxxxxxxxx.dkr.ecr.eu-central-1.amazonaws.com
+eyJwYXlsb...A5NDM4fQ==
 ```
 
 Now, we have to provide a few configuration parameter to Maven. This is done, by creating (if not present) or extending the Maven settings.xml configuration file, which is located at ~/.m2/settings.xml. It has to have the following configuration entries:
@@ -59,8 +65,10 @@ Now, we have to provide a few configuration parameter to Maven. This is done, by
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <!-- configure the AWS account id for your account -->
+                <!-- configure the AWS account id for the Amazon ECR repository -->
                 <aws-account-id>xxxxxxxxxxxx</aws-account-id>
+                <!-- configure the AWS region for the Amazon ECR repository -->
+                <aws-region>eu-central-1</aws-region>
             </properties>
         </profile>
     </profiles>
@@ -71,7 +79,7 @@ Now, we have to provide a few configuration parameter to Maven. This is done, by
             <!-- chose the region your are using. I'm using eu-central-1 (Frankfurt) -->
             <id>xxxxxxxxxxxx.dkr.ecr.eu-central-1.amazonaws.com</id>
             <username>AWS</username>
-            <!-- The password you were looking up by running 'aws ecr get-login --no-include-email'. This password is temporary and you have to update it once a while -->
+            <!-- The password you were looking up by running 'aws ecr get-login-password'. This password is temporary and you have to update it once a while -->
             <password>eyJw...zE5NH0=</password>
         </server>
     </servers>

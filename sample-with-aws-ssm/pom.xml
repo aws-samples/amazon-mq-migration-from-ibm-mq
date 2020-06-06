@@ -127,7 +127,7 @@
                 </executions>
                 <configuration>
                     <!-- configure your Amazon ECR repository URI: https://console.aws.amazon.com/ecs/home?#/repositories -->
-                    <repository>${aws-account-id}.dkr.ecr.${aws.region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/${project.artifactId}</repository>
+                    <repository>${aws-account-id}.dkr.ecr.${aws-region}.amazonaws.com/amazon-mq-migration-from-ibm-mq/${project.artifactId}</repository>
                     <tag>latest</tag>
                     <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
                 </configuration>
