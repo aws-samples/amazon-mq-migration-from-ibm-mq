@@ -1,4 +1,4 @@
-FROM amazonlinux:2018.03
+FROM amazonlinux:2
 
 # Install dependencies
 RUN yum install -y java-1.8.0 \
