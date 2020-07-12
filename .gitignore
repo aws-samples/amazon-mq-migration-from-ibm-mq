@@ -2,7 +2,9 @@
 .DS_Store
 .factorypath
 .project
+*.iml
 
+.idea/
 .settings/
 .vscode/
 target/
