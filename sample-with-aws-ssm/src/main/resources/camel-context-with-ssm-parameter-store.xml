@@ -5,14 +5,13 @@
          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
-
     <bean id="ssm" class="com.amazonaws.samples.AmazonSystemsManagerParameterStorePropertyPlaceholderConfigurer">
         <property name="env" value="${env}" />
     </bean>
 
-    <bean id="amazonMQ" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
+
+    <bean id="amazonMQ" class="org.apache.camel.component.activemq.ActiveMQComponent">
         <property name="connectionFactory">
             <bean class="org.apache.activemq.pool.PooledConnectionFactory" init-method="start" destroy-method="stop">
                 <property name="maxConnections" value="6" />

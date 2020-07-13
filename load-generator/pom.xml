@@ -21,8 +21,8 @@
             <artifactId>javax.jms-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-client</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-activemq</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -96,6 +96,7 @@
                 <version>${com.spotify.dockerfile-maven-plugin.version}</version>
                 <executions>
                     <execution>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>build</goal>
                             <goal>push</goal>
