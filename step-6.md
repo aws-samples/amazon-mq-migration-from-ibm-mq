@@ -33,7 +33,7 @@
 
    We will use the AmqJsmProducer and AmqJmsConsumer jar file as part of test framework. Run the following commands.
 
-1) ### Deploy the Amazon MQ producer container
+1. ### Deploy the Amazon MQ producer container
 
    In this section we will deploy a camel conatiner which will trigger a message sender with several threads sending messages at the same time. The number of threads can be controlled by a trigger file which is present under sample-with-amq-producer/src/main/resources/trigger.json. The json file has settings which indicate the min message size,max message size, no of threads, the duration in mins to run the producer. It also has the credentials and url to connect to the broker.
 
@@ -66,13 +66,13 @@
 
     ``` bash
     aws cloudformation create-stack \
-    --stack-name sample-with-amq-producer \
-    --template-body file://sample-with-amq-producer.yaml \
-    --capabilities CAPABILITY_IAM \
-    --parameter-overrides MetricWidgetBucket=<<CODE_PACKAGE_BUCKET>> \
-    AmazonMQBrokerUserNameRef=<<BROKER_USER_NAME>> \
-    AmazonMQBrokerPasswordRef=<<BROKER_PASSWORD>> \
-    AmazonMQBrokerURLRef=<<BROKER_END_POINT>>
+        --stack-name sample-with-amq-producer \
+        --template-body file://sample-with-amq-producer.yaml \
+        --capabilities CAPABILITY_IAM \
+        --parameter-overrides MetricWidgetBucket=<<CODE_PACKAGE_BUCKET>> \
+        AmazonMQBrokerUserNameRef=<<BROKER_USER_NAME>> \
+        AmazonMQBrokerPasswordRef=<<BROKER_PASSWORD>> \
+        AmazonMQBrokerURLRef=<<BROKER_END_POINT>>
 
     aws cloudformation wait stack-create-complete \
     --stack-name sample-with-amq-producer
@@ -111,16 +111,16 @@
 
     ``` bash
     aws cloudformation create-stack \
-    --stack-name sample-with-amq-consumer \
-    --template-body file://sample-with-amq-producer.yaml \
-    --capabilities CAPABILITY_IAM \
-    --parameter-overrides MetricWidgetBucket=<<CODE_PACKAGE_BUCKET>> \
-    AmazonMQBrokerUserNameRef=<<BROKER_USER_NAME>> \
-    AmazonMQBrokerPasswordRef=<<BROKER_PASSWORD>> \
-    AmazonMQBrokerURLRef=<<BROKER_END_POINT>>
+        --stack-name sample-with-amq-consumer \
+        --template-body file://sample-with-amq-producer.yaml \
+        --capabilities CAPABILITY_IAM \
+        --parameter-overrides MetricWidgetBucket=<<CODE_PACKAGE_BUCKET>> \
+        AmazonMQBrokerUserNameRef=<<BROKER_USER_NAME>> \
+        AmazonMQBrokerPasswordRef=<<BROKER_PASSWORD>> \
+        AmazonMQBrokerURLRef=<<BROKER_END_POINT>>
 
     aws cloudformation wait stack-create-complete \
-    --stack-name sample-with-amq-consumer
+        --stack-name sample-with-amq-consumer
 
 
     ```
@@ -181,7 +181,7 @@
 
    At this time, you will notice several connections created to the broker and the queue(specified in trigger.json) should start enqueing and dequeing messages. The test will run according to the parameters configured in the trigger json file. Once the test completes, you will not see any consumers on the queue or any producets sending messages.
 
-1) ### Capture the results
+1. ### Capture the results
 
    As part of the producer and consumer deployment, we also deployed an API gateway and lambda function which queries cloudwatch to get the desired widget with enqueue and dequeue count for a specified period of time. The widget is controlled by configuration file called image-api.template. Its present under src/main/resources folder for each of the samples. You can modify it based on your widget. However, it would need redeployment of the package.
 
