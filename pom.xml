@@ -13,15 +13,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <com.amazonaws.version>1.11.820</com.amazonaws.version>
+        <com.amazonaws.version>1.12.64</com.amazonaws.version>
         <com.ibm.mq.version>9.1.0.0</com.ibm.mq.version>
         <javax.jms.version>2.0.1</javax.jms.version>
-        <org.apache.camel.version>3.4.0</org.apache.camel.version>
+        <org.apache.camel.version>3.11.0</org.apache.camel.version>
 
         <com.spotify.dockerfile-maven-plugin.version>1.4.13</com.spotify.dockerfile-maven-plugin.version>
         <org.apache.maven.plugins.maven-compiler-plugin.version>3.8.1</org.apache.maven.plugins.maven-compiler-plugin.version>
         <org.apache.maven.plugins.maven-deploy-plugin.version>2.8.2</org.apache.maven.plugins.maven-deploy-plugin.version>
-        <org.apache.maven.plugins.maven-shade-plugin.version>3.2.1</org.apache.maven.plugins.maven-shade-plugin.version>
+        <org.apache.maven.plugins.maven-shade-plugin.version>3.2.4</org.apache.maven.plugins.maven-shade-plugin.version>
     </properties>
 
     <dependencyManagement>
