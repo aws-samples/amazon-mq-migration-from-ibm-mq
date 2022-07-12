@@ -1,9 +1,0 @@
-{
-    "queue":"TEST.FOO12",
-    "url":"ssl://b-c580e952-1ba7-4a40-abdf-5d872807a932-1.mq.us-west-2.amazonaws.com:61617",
-    "user":"admin",
-    "pw":"admin1234567",
-    "t":"25",
-    "duration":"5",
-    "static":"-notran"
-}

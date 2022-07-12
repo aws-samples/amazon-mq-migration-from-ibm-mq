@@ -66,8 +66,5 @@
         <module>sample-with-aws-ssm</module>
         <module>sample-with-nativemq-mapping</module>
         <module>load-generator</module>
-
-        <!-- <module>sample-with-amq-producer</module>
-        <module>sample-with-amq-consumer</module> -->
     </modules>
 </project>
